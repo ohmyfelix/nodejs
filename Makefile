@@ -1,25 +1,26 @@
 DOCKER_IMAGE=dockette/nodejs
-DEFAULT_VERSION=v18
-VERSIONS=v6 v7 v8 v9 v10 v11 v12 v13 v14 v15 v16 v17 v18
+DOCKER_VERSION?=v18
+DOCKER_PLATFORMS?=linux/amd64,linux/arm64
+DOCKER_VERSIONS=v6 v7 v8 v9 v10 v11 v12 v13 v14 v15 v16 v17 v18
 
-.PHONY: build build-all test test-all run $(addprefix build-,$(VERSIONS)) $(addprefix test-,$(VERSIONS))
+.PHONY: build build-all test test-all run $(addprefix build-,$(DOCKER_VERSIONS)) $(addprefix test-,$(DOCKER_VERSIONS))
 
-build: build-$(DEFAULT_VERSION)
+build: build-${DOCKER_VERSION}
 
-build-all: $(addprefix build-,$(VERSIONS))
+build-all: $(addprefix build-,$(DOCKER_VERSIONS))
 
-test: test-$(DEFAULT_VERSION)
+test: test-${DOCKER_VERSION}
 
-test-all: $(addprefix test-,$(VERSIONS))
+test-all: $(addprefix test-,$(DOCKER_VERSIONS))
 
 run:
-	docker run --rm -it ${DOCKER_IMAGE}:${DEFAULT_VERSION}
+	docker run --rm -it ${DOCKER_IMAGE}:${DOCKER_VERSION}
 
 _docker-build-%: VERSION=$*
 _docker-build-%:
 	docker buildx \
 		build \
-		--platform linux/amd64,linux/arm64 \
+		--platform ${DOCKER_PLATFORMS} \
 		--pull \
 		-t ${DOCKER_IMAGE}:${VERSION} \
 		./${VERSION}
